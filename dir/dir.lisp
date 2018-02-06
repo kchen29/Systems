@@ -21,3 +21,5 @@
                 ;;~& is a hack for tabulation to work properly
                 (format t "~&~a~20Tsize: ~a~%" filename (file-size filename))
                 (format t "~a~20Tdir!~%" (car (last (pathname-directory pathname))))))))
+
+(ls)

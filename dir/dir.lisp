@@ -2,12 +2,6 @@
   `(dolist (,pathname (directory (make-pathname :name :wild :type :wild)))
      ,@body))
 
-(defmacro if-progn (test then &optional (else nil else-supplied-p))
-  `(if ,test
-       (progn ,then)
-       ,(if else-supplied-p
-            `(progn ,else))))
-
 (defun file-size (pathname)
   (with-open-file (stream pathname)
     (file-length stream)))
@@ -17,9 +11,9 @@
     (let* ((name (pathname-name pathname))
            (type (pathname-type pathname))
            (filename (format nil "~@[~a~]~@[.~a~]" name type)))
-      (if-progn (or name type)
-                ;;~& is a hack for tabulation to work properly
-                (format t "~&~a~20Tsize: ~a~%" filename (file-size filename))
-                (format t "~a~20Tdir!~%" (car (last (pathname-directory pathname))))))))
+      (if (or name type)
+          ;;~& is a hack for tabulation to work properly
+          (format t "~&~a~20Tsize: ~a~%" filename (file-size filename))
+          (format t "~a~20Tdir!~%" (car (last (pathname-directory pathname))))))))
 
 (ls)

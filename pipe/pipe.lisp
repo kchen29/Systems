@@ -2,17 +2,26 @@
 
 (defun child-task (in out)
   (sb-posix:close out)
-  (let ((stream (sb-sys:make-fd-stream in :buffering :none)))
-    (loop
-       for char = (read-char stream nil nil)
-       while char
-         do (write-char char))))
+  (let ((buf (make-alien (array char 1))))
+    (sb-posix:read in buf 20)
+    (do* ((ar (deref buf 0))
+          (i 0 (1+ i))
+          (code (deref ar i) (deref ar i)))
+         ((zerop code))
+      (format t "~a" (code-char code)))
+    (format t "~%")
+    (sb-posix:close in)
+    (free-alien buf)))
 
 (defun parent-task (in out)
   (sb-posix:close in)
   (let* ((message "this is a message")
-         (stream (sb-sys:make-fd-stream out :output t)))
-    (format stream message)))
+         (message-size (1+ (length message)))
+         (buf (make-alien-string message)))
+    ;;(print buf)
+    (sb-posix:write out buf message-size)
+    (sb-posix:close out)
+    (free-alien buf)))
 
 (defun piping ()
   (multiple-value-bind (in0 out0) (sb-posix:pipe)
